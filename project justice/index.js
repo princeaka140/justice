@@ -236,23 +236,49 @@ bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
 
   await db.ensureUser(userId, username);
 
-  if (startParam && startParam != String(userId)) {
+  if (startParam && startParam !== String(userId)) {
     const user = await db.getUser(userId);
     if (!user.referred_by) {
       await db.updateUser(userId, { referred_by: startParam });
     }
   }
 
-  const welcomeText = `👋 Welcome to JUSTICE on Sol, ${msg.from.first_name || ''}!\n\nJUSTICE helps fight fraud and unfairness in crypto. Join our communities to continue.`;
-  
+  const welcomeVideo = 'CgACAgQAAxkBAAEDB0Ro_-WjtBmGV0HMXxDJaJ0zT2BeygACuR4AAgrS-FN2hA87R-M-DjYE'; // your file_id
+  const welcomeText = `Hey there, ${msg.from.first_name || ''}\n` +
+    `Welcome to the Justice on Solana community — where we’re redefining what fairness means in the world of crypto and Web3.\n\n` +
+    `This isn’t just another blockchain project.\n` +
+    `It’s a movement — a mission to bring accountability, protection, and transparency to the decentralized world through smart contracts, on-chain arbitration, and community-driven governance.\n\n` +
+    `Here’s what you can expect as a member:\n\n` +
+    `• Stay updated on project milestones and token drops.\n` +
+    `• Participate in discussions on blockchain law and DeFi protection.\n` +
+    `• Connect with innovators, builders, and justice advocates.\n` +
+    `• Be part of the first decentralized legal ecosystem on Solana.\n\n` +
+    `Your voice matters here.\n` +
+    `Together, we’re building a fairer, safer, and more transparent Web3.\n\n` +
+    `Welcome to the future of justice — on-chain and unstoppable.\n⚖️\n#JusticeOnSolana #Solana #Web3 #CryptoLaw`;
+
   const keyboard = {
     keyboard: [["➡️ Continue"]],
     resize_keyboard: true,
     one_time_keyboard: true
   };
 
-  await bot.sendMessage(chatId, welcomeText, { reply_markup: keyboard });
+  try {
+    await bot.sendVideo(chatId, welcomeVideo, {
+      caption: welcomeText,
+      parse_mode: 'Markdown',
+      reply_markup: keyboard
+    });
+  } catch (error) {
+    console.error('Error sending video:', error);
+    await bot.sendMessage(chatId, welcomeText, {
+      parse_mode: 'Markdown',
+      reply_markup: keyboard
+    });
+  }
 });
+
+
 
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
